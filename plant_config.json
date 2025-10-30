@@ -1,0 +1,33 @@
+{
+  "slot_count": 4,
+  "plants": {
+    "peashooter": {
+      "slot": 1,
+      "coord": [
+        120,
+        40
+      ]
+    },
+    "sunflower": {
+      "slot": 2,
+      "coord": [
+        180,
+        40
+      ]
+    },
+    "cherry bomb": {
+      "slot": 3,
+      "coord": [
+        240,
+        40
+      ]
+    },
+    "wall-nut": {
+      "slot": 4,
+      "coord": [
+        300,
+        40
+      ]
+    }
+  }
+}
