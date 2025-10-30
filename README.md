@@ -1,6 +1,4 @@
 # PvZ-AI
-AI that can play PvZ: Goty (Made in python)
-
 ИИ для pvz (написано на Claude sonnet 4.5)
 [Внедрён Yolo чтобы анализировать таких классов как sunflower, peas (peashooter), sun, coin, zombie(разные виды зомби к сожалению не распознает)]
 
