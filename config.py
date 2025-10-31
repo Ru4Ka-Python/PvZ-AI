@@ -132,7 +132,9 @@ MIN_SUN_FOR_OFFENSE = 150  # Минимум солнц для начала ат�
 
 # Peashooter placement zones (rows and columns)
 PEASHOOTER_ROWS = [1, 2, 3]  # Rows 2, 3, 4 in game (0-indexed: 1, 2, 3)
-PEASHOOTER_COLS = [1, 2, 3, 4, 5]  # Columns 1-5
+PEASHOOTER_COLS = [1, 2, 3, 4, 5]  # Columns 1-5 (initial)
+PEASHOOTER_COLS_EXTENDED = [6, 7]  # Columns 6-7 (when 1-5 are full)
+PEASHOOTER_COLS_FINAL = [8]  # Column 8 (when 1-7 are full)
 
 # Cherry bomb settings
 CHERRY_BOMB_DANGER_DISTANCE = 2  # Columns between zombie and peashooter to trigger cherry
