@@ -53,7 +53,7 @@ GRID = [
 GRID_ROWS = 5
 GRID_COLS = 9
 
-# ===== PLANT COSTS AND COOLDOWNS =====
+# ===== PLANT COSTS =====
 PLANT_COSTS = {
     "sunflower": 50,
     "peashooter": 100,
@@ -70,56 +70,19 @@ PLANT_COSTS = {
     "torchwood": 175,
 }
 
-# Cooldown times in seconds (initial cooldown before first use)
-PLANT_INITIAL_COOLDOWNS = {
-    "sunflower": 0,      # Ready immediately
-    "peashooter": 0,     # Ready immediately
-    "snow pea": 0,
-    "repeater": 0,
-    "cherry bomb": 37.5, # 37.5s initial cooldown
-    "wall-nut": 20.5,    # 20.5s initial cooldown
-    "tall-nut": 20.5,
-    "potato mine": 0,
-    "squash": 0,
-    "chomper": 0,
-    "spikeweed": 0,
-    "jalapeno": 37.5,
-    "torchwood": 0,
-}
-
-# Cooldown after planting
-PLANT_RECHARGE_COOLDOWNS = {
-    "sunflower": 7.5,    # 7.5s after planting
-    "peashooter": 8.5,   # 8.5s after planting
-    "snow pea": 8.5,
-    "repeater": 8.5,
-    "cherry bomb": 50.5, # 50.5s after planting
-    "wall-nut": 33.5,    # 33.5s after planting
-    "tall-nut": 33.5,
-    "potato mine": 30,
-    "squash": 30,
-    "chomper": 7.5,
-    "spikeweed": 7.5,
-    "jalapeno": 50.5,
-    "torchwood": 7.5,
-}
-
 # ===== ZOMBIE DETECTION =====
 # Cell width and height for zombie grid mapping
 CELL_WIDTH = 80
 CELL_HEIGHT = 95
 GRID_START_X = 75
-GRID_START_Y = 85
+GRID_START_Y = 85  # Понижено с 130 до 85 (хитбоксы зомби ниже)
 
 # Offset для более точного определения ряда зомби
-ZOMBIE_ROW_OFFSET = -5
-
-# Distance threshold for plant being eaten (zombie 2 cells from plant)
-PLANT_EATEN_DISTANCE = 2  # If zombie is 2 or fewer cells from plant
+ZOMBIE_ROW_OFFSET = -5  # Добавляем смещение вниз для детекции
 
 # ===== YOLO MODEL =====
 YOLO_MODEL_PATH = "assets/yolov8_pvz.pt"
-YOLO_CONFIDENCE = 0.4
+YOLO_CONFIDENCE = 0.4  # Понижено для лучшей детекции
 
 # ===== TIMING =====
 LOOP_DELAY = 0.5  # Main loop delay in seconds
@@ -129,34 +92,25 @@ STATUS_CHECK_COOLDOWN = 2.0  # Seconds between status checks for same seed
 # ===== STRATEGY SETTINGS =====
 # Sunflower strategy
 INITIAL_SUNFLOWERS = 3  # Plant 3 sunflowers first (rows 1,2,3)
-ADDITIONAL_SUNFLOWERS = 2  # Plant 2 more when conditions are met
-SUNFLOWER_EXPANSION_THRESHOLD = 2  # Number of peashooters per row to trigger expansion
+ADDITIONAL_SUNFLOWERS = 2  # Plant 2 more when economy is good (rows 0,4)
+ECONOMY_THRESHOLD = 300  # Sun amount to trigger additional sunflowers
 
 # Sunflower column (always column 0)
 SUNFLOWER_COLUMN = 0
 
-# Peashooter columns - RESTRICTED to columns 1-5 only
+# Peashooter columns (where to plant offensive plants)
 OFFENSE_START_COLUMN = 1  # Start from column 1
-OFFENSE_END_COLUMN = 5    # End at column 5 (rows 1,2,3 only)
-
-# Allowed rows for peashooters
-OFFENSE_ROWS = [1, 2, 3]  # Only middle 3 rows
+OFFENSE_END_COLUMN = 7    # End at column 7 (увеличено для большего покрытия)
 
 # Zombie tracking
-ZOMBIE_MEMORY_TIME = 15  # Remember zombie rows for 15 seconds
+ZOMBIE_MEMORY_TIME = 20  # Remember zombie rows for 20 seconds (уменьшено)
 
 # Panic mode threshold (zombie column)
 PANIC_COLUMN = 3  # If zombie reaches this column, use emergency plants
 
-# Cherry bomb threshold - proximity between zombie and plant
-CHERRY_BOMB_PROXIMITY = 2  # Cells between zombie and plant to trigger cherry bomb
-
-# Cherry bomb 3x3 threshold - number of zombies in 3x3 area
-CHERRY_BOMB_ZOMBIE_THRESHOLD = 3  # Use cherry bomb if 3+ zombies in 3x3 area
-
 # Defensive plant placement
 DEFENSE_TRIGGER_COLUMN = 4  # Plant walls when zombies reach this column
 
-# Aggressive mode - start planting shooters early
-AGGRESSIVE_MODE = True
-MIN_SUN_FOR_OFFENSE = 150  # Minimum sun to start offense
+# Aggressive mode - start planting shooters even without seeing zombies
+AGGRESSIVE_MODE = True  # После 3 подсолнухов сразу начинаем защиту
+MIN_SUN_FOR_OFFENSE = 150  # Минимум солнц для начала атаки
