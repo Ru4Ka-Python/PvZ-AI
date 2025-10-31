@@ -1,6 +1,6 @@
 """
 PvZ AI - Main Controller
-With sun tracking system
+With improved strategy and cooldown tracking
 """
 
 import time
@@ -83,7 +83,7 @@ class PvZAI:
     def setup(self):
         """Initial setup"""
         print("\n" + "="*60)
-        print("🌻 PvZ AI - Профессиональная версия")
+        print("🌻 PvZ AI - Улучшенная версия")
         print("="*60)
         
         # Load or create plant configuration
@@ -115,6 +115,7 @@ class PvZAI:
         print("  [R] - Сброс стратегии (новый уровень)")
         print("  [P] - Показать карту растений")
         print("  [S] - Показать статистику")
+        print("  [D] - Показать перезарядки")
         print("  [C] - Собрать солнца вручную")
         print("  [X] - Выход")
         print("="*60)
@@ -144,6 +145,10 @@ class PvZAI:
                 
                 if keyboard.is_pressed("s"):
                     self.print_stats()
+                    time.sleep(0.5)
+                
+                if keyboard.is_pressed("d"):
+                    self.print_cooldowns()
                     time.sleep(0.5)
                 
                 if keyboard.is_pressed("c"):
@@ -225,12 +230,14 @@ class PvZAI:
             
             # Check if we can afford it
             if not self.sun_tracker.can_afford(plant_cost):
-                print(f"⏳ Недостаточно солнц для {plant_name} (нужно {plant_cost}, есть {self.sun_tracker.sun_count})")
+                return
+            
+            # Check cooldown
+            if not self.strategy.can_plant(plant_name):
                 return
             
             # Check if seed is ready
             if not self.controller.check_seed_ready(plant_data["coord"]):
-                print(f"⏳ {plant_name} перезаряжается")
                 return
             
             # Plant it
@@ -244,7 +251,8 @@ class PvZAI:
                 # Spend sun
                 self.sun_tracker.spend_sun(plant_cost)
                 
-                self.strategy.mark_planted(col, row)
+                # Mark planted with name
+                self.strategy.mark_planted(col, row, plant_name)
                 self.plants_placed += 1
                 
                 emoji = self._get_plant_emoji(plant_name)
@@ -252,7 +260,7 @@ class PvZAI:
                 
                 # Remove plant marker for instant-kill plants
                 if plant_name in ["cherry bomb", "jalapeno", "squash", "potato mine"]:
-                    time.sleep(3)  # Wait for effect
+                    time.sleep(3)
                     self.strategy.remove_plant(col, row)
         
         except Exception as e:
@@ -277,6 +285,40 @@ class PvZAI:
         }
         return emojis.get(plant_name, "🌱")
     
+    def print_cooldowns(self):
+        """Print current cooldown status"""
+        current_time = time.time()
+        elapsed_since_start = current_time - self.strategy.game_start_time
+        
+        print("\n" + "="*60)
+        print("⏱️ ПЕРЕЗАРЯДКИ РАСТЕНИЙ")
+        print("="*60)
+        
+        for plant_name in self.plant_manager.get_all_available():
+            initial_cd = PLANT_INITIAL_COOLDOWNS.get(plant_name, 0)
+            recharge_cd = PLANT_RECHARGE_COOLDOWNS.get(plant_name, 0)
+            
+            # Check initial cooldown
+            if elapsed_since_start < initial_cd:
+                remaining = initial_cd - elapsed_since_start
+                print(f"  🔴 {plant_name:15} | Начальная: {remaining:.1f}s")
+                continue
+            
+            # Check recharge cooldown
+            if plant_name in self.strategy.plant_cooldowns:
+                last_used = self.strategy.plant_cooldowns[plant_name]
+                time_since_use = current_time - last_used
+                
+                if time_since_use < recharge_cd:
+                    remaining = recharge_cd - time_since_use
+                    print(f"  🟡 {plant_name:15} | Перезарядка: {remaining:.1f}s")
+                else:
+                    print(f"  🟢 {plant_name:15} | ГОТОВ")
+            else:
+                print(f"  🟢 {plant_name:15} | ГОТОВ")
+        
+        print("="*60 + "\n")
+    
     def print_stats(self):
         """Print current statistics"""
         sun_stats = self.sun_tracker.get_stats()
@@ -293,7 +335,10 @@ class PvZAI:
         print(f"  Текущее: {sun_stats['current']}")
         print(f"  Собрано: {sun_stats['collected']}")
         print(f"  Потрачено: {sun_stats['spent']}")
-        print(f"  Баланс: {sun_stats['current'] + sun_stats['spent']}")
+        print()
+        print("🔫 ГОРОХОСТРЕЛЫ ПО РЯДАМ:")
+        for row, count in sorted(self.strategy.peashooter_count.items()):
+            print(f"  Ряд {row}: {count} шт.")
         print("="*60 + "\n")
 
 
