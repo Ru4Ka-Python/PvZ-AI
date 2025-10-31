@@ -78,11 +78,15 @@ class PlantingStrategy:
         # All rows should be defended by default
         self.rows_to_defend = set(range(GRID_ROWS))  # Defend all rows
         
+        # Column filling tracking
+        self.peashooters_per_column = {}  # {col: count} - track peashooters per column
+        
     def reset(self):
         """Reset strategy state for new level"""
         self.placed_plants.clear()
         self.placed_peashooters.clear()
         self.last_plant_time.clear()
+        self.peashooters_per_column.clear()
         self.cooldown_manager.reset()
         self.production_phase = True
         self.sunflowers_needed = 3
@@ -107,6 +111,10 @@ class PlantingStrategy:
         # Track peashooters and similar shooters
         if plant_name in ["peashooter", "snow pea", "repeater"]:
             self.placed_peashooters[(col, row)] = plant_name
+            # Update column counter
+            if col not in self.peashooters_per_column:
+                self.peashooters_per_column[col] = 0
+            self.peashooters_per_column[col] += 1
         
         # Mark cooldown
         if plant_name:
@@ -118,6 +126,9 @@ class PlantingStrategy:
             self.placed_plants.remove((col, row))
         if (col, row) in self.placed_peashooters:
             del self.placed_peashooters[(col, row)]
+            # Update column counter
+            if col in self.peashooters_per_column:
+                self.peashooters_per_column[col] = max(0, self.peashooters_per_column[col] - 1)
     
     def update_zombie_tracking(self, zombies: List[Tuple[int, int]]):
         """
@@ -359,15 +370,17 @@ class PlantingStrategy:
                 print(f"⏳ Подсолнух перезаряжается: {remaining:.1f}с")
             return None
         
-        # Plant order: middle rows first for better coverage
-        priority_rows = [2, 1, 3, 0, 4]
+        # Plant order: rows 2, 1, 3 (middle rows first) - ИСПРАВЛЕНО
+        priority_rows = [2, 1, 3]  # Только средние ряды для первых 3 подсолнухов
         
         for row in priority_rows:
             if self.sunflowers_planted >= self.sunflowers_needed:
                 break
             
+            # Убеждаемся что сажаем только в колонку 0 (первая колонка)
             if self.is_cell_empty(0, row):
                 self.sunflowers_planted += 1
+                print(f"☀️ Сажаю подсолнух {self.sunflowers_planted}/{self.sunflowers_needed} в колонке 0, ряд {row}")
                 return {
                     "action": "plant",
                     "plant": "sunflower",
@@ -405,11 +418,51 @@ class PlantingStrategy:
         
         return None
     
+    def _get_available_peashooter_columns(self) -> List[int]:
+        """
+        Определяет доступные колонки для горохострелов
+        Расширяется постепенно: 1-5 -> 6-7 -> 8
+        """
+        # Проверяем заполненность текущих колонок
+        current_cols = PEASHOOTER_COLS  # [1, 2, 3, 4, 5]
+        
+        # Проверяем заполнены ли все разрешенные колонки в разрешенных рядах
+        all_current_filled = True
+        for col in current_cols:
+            for row in PEASHOOTER_ROWS:
+                if self.is_cell_empty(col, row):
+                    all_current_filled = False
+                    break
+            if not all_current_filled:
+                break
+        
+        if not all_current_filled:
+            return current_cols
+        
+        # Если колонки 1-5 заполнены, добавляем 6-7
+        extended_cols = current_cols + PEASHOOTER_COLS_EXTENDED
+        
+        # Проверяем заполнены ли 6-7
+        all_extended_filled = True
+        for col in PEASHOOTER_COLS_EXTENDED:
+            for row in PEASHOOTER_ROWS:
+                if self.is_cell_empty(col, row):
+                    all_extended_filled = False
+                    break
+            if not all_extended_filled:
+                break
+        
+        if not all_extended_filled:
+            return extended_cols
+        
+        # Если все заполнено, добавляем колонку 8
+        return extended_cols + PEASHOOTER_COLS_FINAL
+
     def _plan_targeted_offense(self, sun_count: int) -> dict:
         """
         Plant offensive plants in rows where zombies have been detected
         HIGHER PRIORITY than proactive defense
-        RESTRICTED to rows 2,3,4 (indices 1,2,3) and columns 1-5
+        RESTRICTED to rows 2,3,4 (indices 1,2,3) and columns expand dynamically
         PRIORITIZES closest zombies
         """
         
@@ -428,6 +481,9 @@ class PlantingStrategy:
             self.active_zombie_rows,
             key=lambda r: self.closest_zombies.get(r, (999, r))[0]  # Sort by zombie column
         )
+        
+        # Get dynamically available columns
+        available_cols = self._get_available_peashooter_columns()
         
         for plant_name, cost in shooters:
             if not self.plant_manager.has_plant(plant_name):
@@ -452,10 +508,11 @@ class PlantingStrategy:
                     closest_col = self.closest_zombies.get(row, (999, row))[0]
                     print(f"🎯 Зомби обнаружены в ряду {row}, колонка {closest_col}! СРОЧНАЯ защита...")
                 
-                # Plant only in allowed columns (1-5)
-                for col in PEASHOOTER_COLS:
+                # Plant in available columns (расширяется динамически)
+                for col in available_cols:
                     if self.is_cell_empty(col, row):
                         closest_zombie_col = self.closest_zombies.get(row, (999, row))[0]
+                        print(f"🔫 Сажаю {plant_name} в колонке {col}, ряд {row} (доступные колонки: {available_cols})")
                         return {
                             "action": "plant",
                             "plant": plant_name,
@@ -469,7 +526,7 @@ class PlantingStrategy:
     def _plan_proactive_defense(self, sun_count: int) -> dict:
         """
         НОВАЯ ФУНКЦИЯ: Проактивная защита
-        Сажаем горохострелы, ОГРАНИЧЕНИЕ на ряды 2,3,4 (indices 1,2,3) и колонки 1-5
+        Сажаем горохострелы, ОГРАНИЧЕНИЕ на ряды 2,3,4 (indices 1,2,3) и колонки расширяются динамически
         """
         
         # Try different shooters in order of preference
@@ -478,6 +535,9 @@ class PlantingStrategy:
             ("snow pea", 175),
             ("repeater", 200),
         ]
+        
+        # Get dynamically available columns
+        available_cols = self._get_available_peashooter_columns()
         
         for plant_name, cost in shooters:
             if not self.plant_manager.has_plant(plant_name):
@@ -500,9 +560,10 @@ class PlantingStrategy:
                 if row not in self.rows_to_defend:
                     continue
                 
-                # Plant only in allowed columns (1-5)
-                for col in PEASHOOTER_COLS:
+                # Plant in available columns (расширяется динамически)
+                for col in available_cols:
                     if self.is_cell_empty(col, row):
+                        print(f"🛡️ Проактивная защита: сажаю {plant_name} в колонке {col}, ряд {row}")
                         return {
                             "action": "plant",
                             "plant": plant_name,
@@ -592,4 +653,15 @@ class PlantingStrategy:
             print("✅ Зомби не обнаружены")
         print(f"🌻 Подсолнухов: {self.sunflowers_planted}/{self.sunflowers_needed}")
         print(f"🛡️ Защита начата: {'Да' if self.defense_started else 'Нет'}")
+        
+        # Добавляем информацию о доступных колонках для горохострелов
+        available_cols = self._get_available_peashooter_columns()
+        print(f"🔫 Доступные колонки для горохострелов: {available_cols}")
+        
+        # Показываем заполненность колонок
+        print("📊 Заполненность колонок:")
+        for col in available_cols:
+            filled = sum(1 for row in PEASHOOTER_ROWS if not self.is_cell_empty(col, row))
+            total = len(PEASHOOTER_ROWS)
+            print(f"   Колонка {col}: {filled}/{total} занято")
         print()
