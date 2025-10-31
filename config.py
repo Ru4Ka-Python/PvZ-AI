@@ -70,21 +70,6 @@ PLANT_COSTS = {
     "torchwood": 175,
 }
 
-# ===== PLANT COOLDOWNS (in seconds) =====
-# Format: (initial_cooldown, recharge_cooldown)
-PLANT_COOLDOWNS = {
-    "sunflower": (0.0, 7.5),
-    "peashooter": (0.0, 8.5),
-    "wall-nut": (20.5, 33.5),
-    "cherry bomb": (37.5, 50.5),
-    "snow pea": (0.0, 8.5),
-    "repeater": (0.0, 10.0),
-    "tall-nut": (30.0, 40.0),
-    "potato mine": (0.0, 5.0),
-    "squash": (0.0, 10.0),
-    "jalapeno": (20.0, 30.0),
-}
-
 # ===== ZOMBIE DETECTION =====
 # Cell width and height for zombie grid mapping
 CELL_WIDTH = 80
@@ -106,13 +91,12 @@ STATUS_CHECK_COOLDOWN = 2.0  # Seconds between status checks for same seed
 
 # ===== STRATEGY SETTINGS =====
 # Sunflower strategy
-INITIAL_SUNFLOWERS = 3  # Plant 3 sunflowers first in row 1
-ADDITIONAL_SUNFLOWERS = 2  # Plant 2 more after peashooters in row 2 are filled
+INITIAL_SUNFLOWERS = 3  # Plant 3 sunflowers first (rows 1,2,3)
+ADDITIONAL_SUNFLOWERS = 2  # Plant 2 more when economy is good (rows 0,4)
 ECONOMY_THRESHOLD = 300  # Sun amount to trigger additional sunflowers
 
-# Sunflower placement (row 1, columns 1-5)
-SUNFLOWER_ROW = 0  # Row 1 in game (0-indexed: 0)
-SUNFLOWER_COLUMNS = [1, 2, 3, 4, 5]  # Columns 1-5
+# Sunflower column (always column 0)
+SUNFLOWER_COLUMN = 0
 
 # Peashooter columns (where to plant offensive plants)
 OFFENSE_START_COLUMN = 1  # Start from column 1
@@ -120,7 +104,6 @@ OFFENSE_END_COLUMN = 7    # End at column 7 (увеличено для боль�
 
 # Zombie tracking
 ZOMBIE_MEMORY_TIME = 20  # Remember zombie rows for 20 seconds (уменьшено)
-ZOMBIE_MOVEMENT_THRESHOLD = 2  # If zombie moves 2+ cells forward, assume plant eaten
 
 # Panic mode threshold (zombie column)
 PANIC_COLUMN = 3  # If zombie reaches this column, use emergency plants
@@ -131,17 +114,3 @@ DEFENSE_TRIGGER_COLUMN = 4  # Plant walls when zombies reach this column
 # Aggressive mode - start planting shooters even without seeing zombies
 AGGRESSIVE_MODE = True  # После 3 подсолнухов сразу начинаем защиту
 MIN_SUN_FOR_OFFENSE = 150  # Минимум солнц для начала атаки
-
-# Peashooter placement zones (rows and columns)
-# Priority: Fill row 2 first, then expand to rows 3 and 4
-PEASHOOTER_PRIMARY_ROW = 1  # Row 2 in game (0-indexed: 1) - FILL THIS FIRST
-PEASHOOTER_SECONDARY_ROWS = [2, 3]  # Rows 3, 4 in game (0-indexed: 2, 3)
-PEASHOOTER_ROWS = [1, 2, 3]  # All allowed rows for peashooters
-PEASHOOTER_COLS = [1, 2, 3, 4, 5]  # Columns 1-5 (initial)
-PEASHOOTER_COLS_EXTENDED = [6, 7]  # Columns 6-7 (when 1-5 are full)
-PEASHOOTER_COLS_FINAL = [8]  # Column 8 (when 1-7 are full)
-
-# Cherry bomb settings
-CHERRY_BOMB_DANGER_DISTANCE = 2  # Columns between zombie and peashooter to trigger cherry
-CHERRY_BOMB_AREA_SIZE = 3  # 3x3 area check
-CHERRY_BOMB_MIN_ZOMBIES = 3  # Minimum zombies in 3x3 area to use cherry
