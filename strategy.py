@@ -59,7 +59,7 @@ class PlantingStrategy:
         self.first_zombie_per_row.clear()
         self.plants_being_eaten.clear()
         
-        self.peashooter_count = {1: 0, 2: 0, 3: 0}
+        self.peashooter_count = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0}
         
         print("🔄 Стратегия сброшена")
     
