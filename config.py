@@ -167,6 +167,6 @@ CHERRY_BOMB_CLOSE_DISTANCE = 2  # If zombie is 2 cells from peashooter
 
 # ===== CURSOR MOVEMENT =====
 # Smooth cursor movement settings
-SMOOTH_CURSOR_ENABLED = False  # Toggle smooth cursor movement
-SMOOTH_CURSOR_FPS = 60  # Target FPS for smooth movement
-SMOOTH_CURSOR_DURATION = 0.3  # Duration of movement in seconds
+SMOOTH_CURSOR_ENABLED = False  # Toggle smooth cursor movement (press M to toggle)
+SMOOTH_CURSOR_FPS = 30  # Target FPS for smooth movement (30fps for smooth and fast)
+SMOOTH_CURSOR_DURATION = 0.2  # Duration of movement in seconds (faster)
