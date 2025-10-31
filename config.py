@@ -70,6 +70,21 @@ PLANT_COSTS = {
     "torchwood": 175,
 }
 
+# ===== PLANT COOLDOWNS (in seconds) =====
+# Format: (initial_cooldown, recharge_cooldown)
+PLANT_COOLDOWNS = {
+    "sunflower": (0.0, 7.5),
+    "peashooter": (0.0, 8.5),
+    "wall-nut": (20.5, 33.5),
+    "cherry bomb": (37.5, 50.5),
+    "snow pea": (0.0, 8.5),
+    "repeater": (0.0, 10.0),
+    "tall-nut": (30.0, 40.0),
+    "potato mine": (0.0, 5.0),
+    "squash": (0.0, 10.0),
+    "jalapeno": (20.0, 30.0),
+}
+
 # ===== ZOMBIE DETECTION =====
 # Cell width and height for zombie grid mapping
 CELL_WIDTH = 80
@@ -114,3 +129,12 @@ DEFENSE_TRIGGER_COLUMN = 4  # Plant walls when zombies reach this column
 # Aggressive mode - start planting shooters even without seeing zombies
 AGGRESSIVE_MODE = True  # После 3 подсолнухов сразу начинаем защиту
 MIN_SUN_FOR_OFFENSE = 150  # Минимум солнц для начала атаки
+
+# Peashooter placement zones (rows and columns)
+PEASHOOTER_ROWS = [1, 2, 3]  # Rows 2, 3, 4 in game (0-indexed: 1, 2, 3)
+PEASHOOTER_COLS = [1, 2, 3, 4, 5]  # Columns 1-5
+
+# Cherry bomb settings
+CHERRY_BOMB_DANGER_DISTANCE = 2  # Columns between zombie and peashooter to trigger cherry
+CHERRY_BOMB_AREA_SIZE = 3  # 3x3 area check
+CHERRY_BOMB_MIN_ZOMBIES = 3  # Minimum zombies in 3x3 area to use cherry
