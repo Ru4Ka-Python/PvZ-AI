@@ -70,6 +70,40 @@ PLANT_COSTS = {
     "torchwood": 175,
 }
 
+# ===== PLANT COOLDOWNS (in seconds) =====
+PLANT_COOLDOWNS = {
+    "sunflower": 7.5,
+    "peashooter": 8.5,
+    "snow pea": 30.0,
+    "repeater": 30.0,
+    "cherry bomb": 50.5,
+    "wall-nut": 33.5,
+    "tall-nut": 33.5,
+    "potato mine": 30.0,
+    "squash": 30.0,
+    "chomper": 30.0,
+    "spikeweed": 7.5,
+    "jalapeno": 50.5,
+    "torchwood": 30.0,
+}
+
+# Initial cooldowns (time before first use)
+PLANT_INITIAL_COOLDOWNS = {
+    "sunflower": 0.0,
+    "peashooter": 0.0,
+    "snow pea": 0.0,
+    "repeater": 0.0,
+    "cherry bomb": 37.5,
+    "wall-nut": 20.5,
+    "tall-nut": 20.5,
+    "potato mine": 0.0,
+    "squash": 0.0,
+    "chomper": 0.0,
+    "spikeweed": 0.0,
+    "jalapeno": 37.5,
+    "torchwood": 0.0,
+}
+
 # ===== ZOMBIE DETECTION =====
 # Cell width and height for zombie grid mapping
 CELL_WIDTH = 80
@@ -83,6 +117,7 @@ ZOMBIE_ROW_OFFSET = -5  # Добавляем смещение вниз для д
 # ===== YOLO MODEL =====
 YOLO_MODEL_PATH = "assets/yolov8_pvz.pt"
 YOLO_CONFIDENCE = 0.4  # Понижено для лучшей детекции
+YOLO_CHECK_INTERVAL = 0.5  # Reduced from 2.0 to 0.5 for faster detection
 
 # ===== TIMING =====
 LOOP_DELAY = 0.5  # Main loop delay in seconds
@@ -114,3 +149,24 @@ DEFENSE_TRIGGER_COLUMN = 4  # Plant walls when zombies reach this column
 # Aggressive mode - start planting shooters even without seeing zombies
 AGGRESSIVE_MODE = True  # После 3 подсолнухов сразу начинаем защиту
 MIN_SUN_FOR_OFFENSE = 150  # Минимум солнц для начала атаки
+
+# ===== PEASHOOTER PLACEMENT RESTRICTIONS =====
+# Restrict peashooters to specific rows and columns
+PEASHOOTER_ALLOWED_ROWS = [1, 2, 3]  # Rows 2, 3, 4 (0-indexed: 1, 2, 3)
+PEASHOOTER_ALLOWED_COLS = [1, 2, 3, 4, 5]  # Columns 1-5
+
+# ===== PLANT EATEN DETECTION =====
+# Distance threshold for considering a plant eaten
+PLANT_EATEN_THRESHOLD = 1  # If zombie is 1 cell away, consider plant eaten
+
+# ===== CHERRY BOMB SETTINGS =====
+# Minimum zombies in 3x3 area to use cherry bomb
+CHERRY_BOMB_3X3_THRESHOLD = 3
+# Distance threshold for placing cherry bomb near peashooter
+CHERRY_BOMB_CLOSE_DISTANCE = 2  # If zombie is 2 cells from peashooter
+
+# ===== CURSOR MOVEMENT =====
+# Smooth cursor movement settings
+SMOOTH_CURSOR_ENABLED = False  # Toggle smooth cursor movement
+SMOOTH_CURSOR_FPS = 60  # Target FPS for smooth movement
+SMOOTH_CURSOR_DURATION = 0.3  # Duration of movement in seconds
